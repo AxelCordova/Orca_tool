@@ -1,0 +1,37 @@
+version: '3.8'  # Estoy indicando que usaré la versión 3.8 de Docker-compose.
+
+services:  # Aquí defino los servicios que necesito ejecutar.
+  web:  # Este es el servicio para mi aplicación web.
+    build:  
+      context: ./app  # Aquí le doy la ruta de los archivos que necesita para construir la aplicación web.
+    restart: always  
+    ports:
+      - "8000:8000"  # Mapeo el puerto 8000 del contenedor al puerto 8000 en mi computadora para acceder desde el navegador.
+    volumes:
+      - ./app:/usr/src/app  
+    working_dir: /usr/src/app  
+    command: "node index.js"  # Le digo al contenedor que use "node index.js" para iniciar la aplicación.
+
+  mysql:  # Este servicio es para la base de datos MySQL.
+    build:  
+      context: ./mysql  # Aquí están los archivos necesarios para construir el contenedor de MySQL.
+    restart: always 
+    environment:  
+      MYSQL_ROOT_PASSWORD: rootpassword  
+      MYSQL_DATABASE: mydatabase  
+      MYSQL_USER: user  
+      MYSQL_PASSWORD: userpassword  
+    ports:
+      - "3306:3306"  # Hago accesible el puerto 3306, para que otras aplicaciones puedan conectarse a la base de datos.
+    volumes:
+      - mysql_data:/var/lib/mysql  # Guardo los datos de MySQL en un volumen para que no se pierdan.
+
+  redis:  # Este servicio es para Redis, una base de datos en memoria que usaré como caché.
+    build:  
+      context: ./redis  # Especifico dónde están los archivos para construir el contenedor de Redis.
+    restart: always  
+    ports:
+      - "6379:6379"  # Hago accesible el puerto 6379 para que pueda conectarme a Redis externamente.
+
+volumes:
+  mysql_data:  # Declaro el volumen de MySQL para que los datos persistan, así no se pierden entre reinicios.
